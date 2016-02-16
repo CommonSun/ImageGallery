@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.etiennelawlor.imagegallery.R;
+import com.etiennelawlor.imagegallery.library.activities.FullScreenImageGalleryActivity;
 import com.etiennelawlor.imagegallery.library.activities.ImageGalleryActivity;
 import com.etiennelawlor.imagegallery.library.enums.PaletteColorType;
 
@@ -22,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     // region Listeners
     @OnClick(R.id.view_gallery_btn)
     public void onViewGalleryButtonClicked() {
-        Intent intent = new Intent(MainActivity.this, ImageGalleryActivity.class);
+        Intent intent = new Intent(MainActivity.this, FullScreenImageGalleryActivity.class);
 
         ArrayList<String> images = new ArrayList<>();
 
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
         intent.putStringArrayListExtra("images", images);
         // optionally set background color using Palette
         intent.putExtra("palette_color_type", PaletteColorType.VIBRANT);
+        intent.putExtra("position", 5);
+        intent.putExtra("contact_name", "Motorola");
 
         startActivity(intent);
     }

@@ -10,6 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.etiennelawlor.imagegallery.library.R;
 import com.etiennelawlor.imagegallery.library.adapters.ImageGalleryAdapter;
@@ -24,9 +26,12 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
     // region Member Variables
     private ArrayList<String> mImages;
     private PaletteColorType mPaletteColorType;
+    private String mContactName;
 
     private Toolbar mToolbar;
     private RecyclerView mRecyclerView;
+    private TextView textViewNumbers, textViewNavigation;
+    private LinearLayout linearLayoutBack;
     // endregion
 
     // region Lifecycle Methods
@@ -39,10 +44,6 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
         bindViews();
 
         setSupportActionBar(mToolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.setDisplayHomeAsUpEnabled(true);
-
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -50,6 +51,8 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
             if (extras != null) {
                 mImages = extras.getStringArrayList("images");
                 mPaletteColorType = (PaletteColorType) extras.get("palette_color_type");
+                mContactName = extras.getString("contact_name");
+                textViewNavigation.setText(mContactName);
             }
         }
 
@@ -83,6 +86,8 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
         if (mPaletteColorType != null) {
             intent.putExtra("palette_color_type", mPaletteColorType);
         }
+        intent.putExtra("contact_name", mContactName);
+        intent.putExtra("from_gallery", true);
 
         startActivity(intent);
     }
@@ -92,6 +97,17 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
     private void bindViews() {
         mRecyclerView = (RecyclerView) findViewById(R.id.rv);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        textViewNavigation = (TextView)mToolbar.findViewById(R.id.navigation);
+        textViewNumbers = (TextView)mToolbar.findViewById(R.id.numbers);
+        textViewNumbers.setVisibility(View.GONE);
+        linearLayoutBack = (LinearLayout)mToolbar.findViewById(R.id.back);
+        linearLayoutBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //onBackPressed();
+                finish();
+            }
+        });
     }
 
     private void setUpRecyclerView() {

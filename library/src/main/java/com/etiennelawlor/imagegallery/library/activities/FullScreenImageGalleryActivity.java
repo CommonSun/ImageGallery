@@ -3,10 +3,13 @@ package com.etiennelawlor.imagegallery.library.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.etiennelawlor.imagegallery.library.R;
 import com.etiennelawlor.imagegallery.library.adapters.FullScreenImageGalleryAdapter;
@@ -22,9 +25,13 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
     private List<String> mImages;
     private int mPosition;
     private PaletteColorType mPaletteColorType;
+    private String mContactName;
+    private boolean mFromGallery;
 
     private Toolbar mToolbar;
     private ViewPager mViewPager;
+    private TextView textViewNumbers, textViewNavigation;
+    private LinearLayout linearLayoutBack;
     // endregion
 
     // region Listeners
@@ -60,10 +67,6 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
         bindViews();
 
         setSupportActionBar(mToolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.setDisplayHomeAsUpEnabled(true);
-
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -72,6 +75,9 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
                 mImages = extras.getStringArrayList("images");
                 mPaletteColorType = (PaletteColorType) extras.get("palette_color_type");
                 mPosition = extras.getInt("position");
+                mContactName = extras.getString("contact_name");
+                textViewNavigation.setText(mContactName);
+                mFromGallery = extras.getBoolean("from_gallery");
             }
         }
 
@@ -99,6 +105,15 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
     private void bindViews() {
         mViewPager = (ViewPager) findViewById(R.id.vp);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        textViewNumbers = (TextView)mToolbar.findViewById(R.id.numbers);
+        textViewNavigation = (TextView)mToolbar.findViewById(R.id.navigation);
+        linearLayoutBack = (LinearLayout)mToolbar.findViewById(R.id.back);
+        linearLayoutBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToGallery();
+            }
+        });
     }
 
     private void setUpViewPager() {
@@ -117,15 +132,25 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
         if (mViewPager != null && mImages.size() > 1) {
             int totalPages = mViewPager.getAdapter().getCount();
 
-            ActionBar actionBar = getSupportActionBar();
-            if(actionBar != null){
-                actionBar.setTitle(String.format("%d of %d", (position + 1), totalPages));
+            if (mToolbar != null) {
+                textViewNumbers.setText(String.format("%d of %d", (position + 1), totalPages));
             }
         }
     }
 
     private void removeListeners() {
         mViewPager.removeOnPageChangeListener(mViewPagerOnPageChangeListener);
+    }
+
+    private void goToGallery() {
+        if(!mFromGallery) {
+            Intent intent = new Intent(FullScreenImageGalleryActivity.this, ImageGalleryActivity.class);
+            intent.putStringArrayListExtra("images", (ArrayList<String>) mImages);
+            intent.putExtra("palette_color_type", mPaletteColorType);
+            intent.putExtra("contact_name", mContactName);
+            startActivity(intent);
+        }
+        finish();
     }
     // endregion
 }
