@@ -23,6 +23,10 @@ import java.util.ArrayList;
 
 public class ImageGalleryActivity extends AppCompatActivity implements ImageGalleryAdapter.OnImageClickListener {
 
+    public static final String IMAGES = "images";
+    public static final String PALETTE = "palette_color_type";
+    public static final String ACTION_BACK = "action_back";
+
     // region Member Variables
     private ArrayList<String> mImages;
     private PaletteColorType mPaletteColorType;
@@ -49,9 +53,9 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
         if (intent != null) {
             Bundle extras = intent.getExtras();
             if (extras != null) {
-                mImages = extras.getStringArrayList("images");
-                mPaletteColorType = (PaletteColorType) extras.get("palette_color_type");
-                mContactName = extras.getString("contact_name");
+                mImages = extras.getStringArrayList(IMAGES);
+                mPaletteColorType = (PaletteColorType) extras.get(PALETTE);
+                mContactName = extras.getString(ACTION_BACK);
                 textViewNavigation.setText(mContactName);
             }
         }
@@ -81,13 +85,13 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
     public void onImageClick(int position) {
         Intent intent = new Intent(ImageGalleryActivity.this, FullScreenImageGalleryActivity.class);
 
-        intent.putStringArrayListExtra("images", mImages);
-        intent.putExtra("position", position);
+        intent.putStringArrayListExtra(FullScreenImageGalleryActivity.IMAGES, mImages);
+        intent.putExtra(FullScreenImageGalleryActivity.POSITION, position);
         if (mPaletteColorType != null) {
-            intent.putExtra("palette_color_type", mPaletteColorType);
+            intent.putExtra(FullScreenImageGalleryActivity.PALETTE, mPaletteColorType);
         }
-        intent.putExtra("contact_name", mContactName);
-        intent.putExtra("from_gallery", true);
+        intent.putExtra(FullScreenImageGalleryActivity.ACTION_BACK, mContactName);
+        intent.putExtra(FullScreenImageGalleryActivity.FROM_GALLERY, true);
 
         startActivity(intent);
     }

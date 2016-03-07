@@ -33,16 +33,39 @@
                 android:textColor="@color/primary"/>
         </LinearLayout>
 
+
+        <TextView
+            android:id="@+id/remove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:text="Remove"
+            android:textSize="22sp"
+            android:layout_centerInParent="true"
+            android:textColor="@color/grey_white_1000"/>
+
+        <TextView
+            android:id="@+id/done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Done"
+            android:layout_marginRight="18dp"
+            android:textSize="18sp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:textColor="@color/yellow_400"/>
+
         <TextView
             android:id="@+id/numbers"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="12dp"
             android:text="5 of 34"
-            android:textSize="24sp"
-            android:gravity="center"
-            android:layout_centerInParent="true"
+            android:textSize="12sp"
+            android:layout_below="@+id/done"
+            android:layout_alignLeft="@+id/done"
             android:textColor="@color/grey_white_1000"/>
+
     </RelativeLayout>
 
 </android.support.v7.widget.Toolbar>

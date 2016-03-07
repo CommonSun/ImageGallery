@@ -16,12 +16,14 @@ import com.etiennelawlor.imagegallery.library.util.ImageGalleryUtils;
 import com.etiennelawlor.imagegallery.library.view.PaletteTransformation;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.List;
 
 /**
  * Created by etiennelawlor on 8/20/15.
  */
 public class FullScreenImageGalleryAdapter extends PagerAdapter {
+    private static final String MY_BUCKETIMAGE_SUFFIX = "/img.jpg";
 
     // region Member Variables
     private final List<String> mImages;
@@ -51,23 +53,44 @@ public class FullScreenImageGalleryAdapter extends PagerAdapter {
         int width = ImageGalleryUtils.getScreenWidth(context);
 
         if (!TextUtils.isEmpty(image)) {
-            Picasso.with(imageView.getContext())
-                    .load(image)
-                    .resize(width, 0)
-                    .transform(PaletteTransformation.instance())
-                    .into(imageView, new PaletteTransformation.PaletteCallback(imageView) {
-                        @Override
-                        public void onError() {
+            if (image.indexOf(MY_BUCKETIMAGE_SUFFIX) == -1) { // it is local
+                File localFile = new File(image);
+                Picasso.with(imageView.getContext())
+                        .load(localFile)
+                        .resize(width, 0)
+                        .transform(PaletteTransformation.instance())
+                        .into(imageView, new PaletteTransformation.PaletteCallback(imageView) {
+                            @Override
+                            public void onError() {
 
-                        }
+                            }
 
-                        @Override
-                        public void onSuccess(Palette palette) {
-                            int bgColor = getBackgroundColor(palette);
-                            if (bgColor != -1)
-                                linearLayout.setBackgroundColor(bgColor);
-                        }
-                    });
+                            @Override
+                            public void onSuccess(Palette palette) {
+                                int bgColor = getBackgroundColor(palette);
+                                if (bgColor != -1)
+                                    linearLayout.setBackgroundColor(bgColor);
+                            }
+                        });
+            } else {
+                Picasso.with(imageView.getContext())
+                        .load(image)
+                        .resize(width, 0)
+                        .transform(PaletteTransformation.instance())
+                        .into(imageView, new PaletteTransformation.PaletteCallback(imageView) {
+                            @Override
+                            public void onError() {
+
+                            }
+
+                            @Override
+                            public void onSuccess(Palette palette) {
+                                int bgColor = getBackgroundColor(palette);
+                                if (bgColor != -1)
+                                    linearLayout.setBackgroundColor(bgColor);
+                            }
+                        });
+            }
         } else {
             imageView.setImageDrawable(null);
         }
