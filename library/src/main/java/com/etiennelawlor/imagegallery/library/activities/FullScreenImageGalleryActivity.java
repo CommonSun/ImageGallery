@@ -25,6 +25,7 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
     public static final String ACTION_BACK = "action_back";
     public static final String FROM_GALLERY = "from_gallery";
     public static final String SHOW_REMOVE = "show_remove";
+    public static final String SHOW_DONE = "show_done";
     public static final String BACK_HERE = "back_here";
 
     // region Member Variables
@@ -89,6 +90,13 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
                 boolean showRemove = extras.getBoolean(SHOW_REMOVE);
                 if (showRemove)
                     textViewRemove.setVisibility(View.VISIBLE);
+                else
+                    textViewRemove.setVisibility(View.GONE);
+                boolean showDone = extras.getBoolean(SHOW_DONE);
+                if (showDone)
+                    textViewDone.setVisibility(View.VISIBLE);
+                else
+                    textViewDone.setText("         ");
                 mdontGoBrowseGallery = extras.getBoolean(BACK_HERE);
             }
         }
