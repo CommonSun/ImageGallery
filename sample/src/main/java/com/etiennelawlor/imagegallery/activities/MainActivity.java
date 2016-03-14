@@ -8,12 +8,16 @@ import android.view.View;
 import com.etiennelawlor.imagegallery.R;
 import com.etiennelawlor.imagegallery.library.activities.FullScreenImageGalleryActivity;
 import com.etiennelawlor.imagegallery.library.activities.ImageGalleryActivity;
+import com.etiennelawlor.imagegallery.library.activities.PhotoGalleryActivity;
 import com.etiennelawlor.imagegallery.library.enums.PaletteColorType;
+import com.etiennelawlor.imagegallery.library.events.ImageModelsEvent;
+import com.etiennelawlor.imagegallery.library.models.ImageModel;
 
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by etiennelawlor on 8/20/15.
@@ -21,12 +25,47 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
     // region Listeners
+    @OnClick(R.id.view_photo_btn)
+    public void onViewPhotoGalleryButtonClicked() {
+        Intent intent = new Intent(MainActivity.this, PhotoGalleryActivity.class);
+
+        ArrayList<String> images = getImages();
+        ArrayList<ImageModel> allImages = new ArrayList<>(images.size());
+        for (String url : images) {
+            ImageModel imageModel = new ImageModel(url);
+            allImages.add(imageModel);
+        }
+        ImageModelsEvent event = new ImageModelsEvent(allImages);
+        //EventBus.getDefault().postSticky(event);
+
+        //intent.putStringArrayListExtra("images", images);
+        // optionally set background color using Palette
+        intent.putExtra("palette_color_type", PaletteColorType.VIBRANT);
+        intent.putExtra("position", 5);
+        intent.putExtra("contact_name", "Motorola");
+
+        startActivity(intent);
+    }
+
     @OnClick(R.id.view_gallery_btn)
     public void onViewGalleryButtonClicked() {
-        Intent intent = new Intent(MainActivity.this, FullScreenImageGalleryActivity.class);
+        Intent intent = new Intent(MainActivity.this, ImageGalleryActivity.class);
 
+        ArrayList<String> images = getImages();
+
+        intent.putStringArrayListExtra("images", images);
+        // optionally set background color using Palette
+        intent.putExtra("palette_color_type", PaletteColorType.VIBRANT);
+        intent.putExtra("position", 5);
+        intent.putExtra("contact_name", "Motorola");
+
+        startActivity(intent);
+    }
+    // endregion
+
+
+    private ArrayList<String> getImages() {
         ArrayList<String> images = new ArrayList<>();
-
         images.add("https://images.unsplash.com/photo-1437422061949-f6efbde0a471?q=80&fm=jpg&s=e23055c9ba7686b8fe583fb8318a1f88");
         images.add("https://images.unsplash.com/photo-1434139240289-56c519f77cb0?q=80&fm=jpg&s=13f8a0d1c2f96b5f311dedeb17cddb60");
         images.add("https://images.unsplash.com/photo-1429152937938-07b5f2828cdd?q=80&fm=jpg&s=a4f424db0ae5a398297df5ae5e0520d6");
@@ -60,15 +99,8 @@ public class MainActivity extends AppCompatActivity {
         images.add("https://images.unsplash.com/44/MIbCzcvxQdahamZSNQ26_12082014-IMG_3526.jpg?q=80&fm=jpg&s=9f2b7926c5c13f719c57536392d78b49");
         images.add("https://images.unsplash.com/photo-1415226556993-1404e0c6e727?q=80&fm=jpg&s=334b8b5271cdbd8cbd4990a3aef89074");
 
-        intent.putStringArrayListExtra("images", images);
-        // optionally set background color using Palette
-        intent.putExtra("palette_color_type", PaletteColorType.VIBRANT);
-        intent.putExtra("position", 5);
-        intent.putExtra("contact_name", "Motorola");
-
-        startActivity(intent);
+        return images;
     }
-    // endregion
 
     // region Lifecycle Methods
     @Override
