@@ -1,9 +1,14 @@
 package com.etiennelawlor.imagegallery.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
 import com.etiennelawlor.imagegallery.R;
 import com.etiennelawlor.imagegallery.library.activities.FullScreenImageGalleryActivity;
@@ -23,10 +28,18 @@ import de.greenrobot.event.EventBus;
  * Created by etiennelawlor on 8/20/15.
  */
 public class MainActivity extends AppCompatActivity {
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 101;
+    private boolean permissionReadMedia = false;
 
     // region Listeners
     @OnClick(R.id.view_photo_btn)
     public void onViewPhotoGalleryButtonClicked() {
+        if(!permissionReadMedia) {
+            Toast.makeText(this, "Don't have permission to read stored images !",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Intent intent = new Intent(MainActivity.this, PhotoGalleryActivity.class);
 
         ArrayList<String> selected = new ArrayList<>(3);
@@ -103,6 +116,46 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        checkPermission();
+    }
+
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                Toast.makeText(this, "Permission to read stored images needed",
+                        Toast.LENGTH_LONG).show();
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+            }
+        } else
+            permissionReadMedia = true;
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Permission to read stored images granted",
+                            Toast.LENGTH_SHORT).show();
+                    permissionReadMedia = true;
+                } else {
+                    Toast.makeText(this, "Permission to read stored images DENIED",
+                            Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+        }
     }
     // endregion
 }
