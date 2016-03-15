@@ -25,11 +25,11 @@ import com.etiennelawlor.imagegallery.library.models.ImageModel;
 import com.etiennelawlor.imagegallery.library.util.ImageGalleryUtils;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import de.greenrobot.event.EventBus;
 
 
 public class PhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

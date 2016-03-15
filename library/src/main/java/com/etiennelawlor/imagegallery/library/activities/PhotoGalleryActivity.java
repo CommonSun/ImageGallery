@@ -40,9 +40,11 @@ import com.etiennelawlor.imagegallery.library.models.ImageModel;
 import com.etiennelawlor.imagegallery.library.util.ImageGalleryUtils;
 import com.etiennelawlor.imagegallery.library.view.GridSpacesItemDecoration;
 
-import java.util.ArrayList;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
-import de.greenrobot.event.EventBus;
+import java.util.ArrayList;
 
 public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGalleryAdapter.OnImageClickListener,
         LoaderManager.LoaderCallbacks<Cursor>{
@@ -99,7 +101,7 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().registerSticky(this);
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -261,14 +263,17 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
     }
     // endregion
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEvent(ImageModelsEvent event) {
         setUpRecyclerView(event.images);
     }
 
+    @Subscribe
     public void onEvent(ImageLongClickEvent event) {
         multipleSelectChange(null);
     }
 
+    @Subscribe
     public void onEvent(ImageTapEvent event) {
         if (mSelectedPhotos == null) {
             mSelectedPhotos = new ArrayList<>();
