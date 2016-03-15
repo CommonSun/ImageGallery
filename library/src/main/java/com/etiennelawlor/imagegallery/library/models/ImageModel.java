@@ -5,11 +5,13 @@ package com.etiennelawlor.imagegallery.library.models;
  */
 public class ImageModel {
     public String externalUrl;
-    public String localpath;
+    public String localPath;
     public boolean isSelected;
+    public long id; // from Media db
 
-    public ImageModel (String image) {
-        this.externalUrl = image;
+    public ImageModel (String image, long id) {
+        this.localPath = image;
+        this.id = id;
         isSelected = false;
     }
 }

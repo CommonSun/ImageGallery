@@ -1,3 +1,12 @@
+
+/*
+ * PhotoGalleryAdapter.java
+ * Heyandroid
+ *
+ * Created by Miroslav Ignjatovic on 3/14/2016
+ * Copyright (c) 2015 CommonSun All rights reserved.
+ */
+
 package com.etiennelawlor.imagegallery.library.adapters;
 
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +19,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.etiennelawlor.imagegallery.library.R;
-import com.etiennelawlor.imagegallery.library.events.MultipleSelectModeChanged;
+import com.etiennelawlor.imagegallery.library.events.ImageLongClickEvent;
+import com.etiennelawlor.imagegallery.library.events.ImageTapEvent;
 import com.etiennelawlor.imagegallery.library.models.ImageModel;
 import com.etiennelawlor.imagegallery.library.util.ImageGalleryUtils;
 import com.squareup.picasso.Picasso;
@@ -21,9 +31,7 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-/**
- * Created by etiennelawlor on 8/20/15.
- */
+
 public class PhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     // region Member Variables
@@ -41,15 +49,15 @@ public class PhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     // endregion
 
     // region Constructors
-    public PhotoGalleryAdapter(List<ImageModel> images) {
+    public PhotoGalleryAdapter(List<ImageModel> images, boolean multiplePick) {
         mImagesModelList = images;
-        multiplePicking = false;
+        multiplePicking = multiplePick;
     }
     // endregion
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.image_thumbnail_selection, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.photo_thumbnail, viewGroup, false);
         v.setLayoutParams(getGridItemLayoutParams(v));
 
         return new ImageViewHolder(v);
@@ -65,7 +73,7 @@ public class PhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             image = item.externalUrl;
             setUpImage(holder.mImageView, image);
         } else {
-            image = item.localpath;
+            image = item.localPath;
             File file = new File(image);
             setUpLocalImage(holder.mImageView, file);
         }
@@ -84,6 +92,8 @@ public class PhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     if (item != null) {
                         item.isSelected = !item.isSelected;
                         notifyDataSetChanged();
+                        ImageTapEvent event = new ImageTapEvent(item);
+                        EventBus.getDefault().post(event);
                     }
                 } else {  // single pick -> do some action
                     Log.d("tag", "not multiple picking");
@@ -99,13 +109,22 @@ public class PhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         holder.mFrameLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                int adapterPos = holder.getAdapterPosition();
+                ImageLongClickEvent event = new ImageLongClickEvent(adapterPos);
+                EventBus.getDefault().post(event);
                 multiplePicking = !multiplePicking;
-                MultipleSelectModeChanged multipleSelectModeChanged = new MultipleSelectModeChanged(multiplePicking);
-                EventBus.getDefault().post(multipleSelectModeChanged);
                 return false;
             }
         });
+    }
 
+    public void deselectAll() {
+        for (ImageModel model : mImagesModelList) {
+            if (model.isSelected) {
+                model.isSelected = false;
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -199,6 +218,10 @@ public class PhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mSelected = (ImageView) view.findViewById(R.id.selected);
         }
         // endregion
+    }
+
+    public ArrayList<ImageModel> getItems() {
+        return (ArrayList<ImageModel>) mImagesModelList;
     }
 
     // endregion

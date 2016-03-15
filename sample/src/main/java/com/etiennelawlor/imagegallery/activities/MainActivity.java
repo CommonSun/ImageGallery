@@ -29,21 +29,15 @@ public class MainActivity extends AppCompatActivity {
     public void onViewPhotoGalleryButtonClicked() {
         Intent intent = new Intent(MainActivity.this, PhotoGalleryActivity.class);
 
-        ArrayList<String> images = getImages();
-        ArrayList<ImageModel> allImages = new ArrayList<>(images.size());
-        for (String url : images) {
-            ImageModel imageModel = new ImageModel(url);
-            allImages.add(imageModel);
-        }
-        ImageModelsEvent event = new ImageModelsEvent(allImages);
-        //EventBus.getDefault().postSticky(event);
-
-        //intent.putStringArrayListExtra("images", images);
-        // optionally set background color using Palette
-        intent.putExtra("palette_color_type", PaletteColorType.VIBRANT);
-        intent.putExtra("position", 5);
-        intent.putExtra("contact_name", "Motorola");
-
+        ArrayList<String> selected = new ArrayList<>(3);
+        selected.add("122");
+        selected.add("127");
+        selected.add("129");
+        intent.putStringArrayListExtra(PhotoGalleryActivity.IMAGES_SELECTED_EXTRA, selected);
+        intent.putExtra(PhotoGalleryActivity.ACTION_BACK_EXTRA, "Back");
+        intent.putExtra(PhotoGalleryActivity.MULTIPLE_SELECT_EXTRA, false);
+        intent.putExtra(PhotoGalleryActivity.CAPTION_EXTRA, "Select");
+        intent.putExtra(PhotoGalleryActivity.ACTION_NEXT_EXTRA, "Done");
         startActivity(intent);
     }
 

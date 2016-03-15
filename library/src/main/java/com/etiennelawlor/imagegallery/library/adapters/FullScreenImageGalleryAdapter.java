@@ -37,6 +37,15 @@ public class FullScreenImageGalleryAdapter extends PagerAdapter {
     }
     // endregion
 
+    private boolean isLocal(String url) {
+        if (url.indexOf(MY_BUCKETIMAGE_SUFFIX) == -1  &&
+                url.indexOf("http://") != 0 &&
+                url.indexOf("https://") != 0) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         LayoutInflater inflater = (LayoutInflater) container.getContext()
@@ -53,7 +62,7 @@ public class FullScreenImageGalleryAdapter extends PagerAdapter {
         int width = ImageGalleryUtils.getScreenWidth(context);
 
         if (!TextUtils.isEmpty(image)) {
-            if (image.indexOf(MY_BUCKETIMAGE_SUFFIX) == -1) { // it is local
+            if (isLocal(image)) { // it is local
                 File localFile = new File(image);
                 Picasso.with(imageView.getContext())
                         .load(localFile)
