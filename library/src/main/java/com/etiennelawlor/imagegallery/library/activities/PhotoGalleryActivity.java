@@ -24,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,8 +49,9 @@ import java.util.ArrayList;
 
 public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGalleryAdapter.OnImageClickListener,
         LoaderManager.LoaderCallbacks<Cursor>{
-
+    private static final int LOADER_IDENT = 132;
     public static final String IMAGES_SELECTED_EXTRA = "images_selected";
+    public static final String ACTION_GALLERY_ID = "gallery_id";
     public static final String ACTION_BACK_EXTRA = "action_back";
     public static final String MULTIPLE_SELECT_EXTRA = "multiple_select";
     public static final String CAPTION_EXTRA = "caption_text";
@@ -59,6 +61,7 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
     private String mBackAction;
     private String mNextAction;
     private String mCaption;
+    private String mGalleryId;
     PhotoGalleryAdapter mAdapter;
     private boolean mMultipleSelect;
     private ArrayList<String> mSelectedPhotos;
@@ -81,6 +84,9 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
         if (intent != null) {
             Bundle extras = intent.getExtras();
             if (extras != null) {
+                try {
+                    mGalleryId = extras.getString(ACTION_GALLERY_ID);
+                } catch (Exception e) {}
                 mBackAction = extras.getString(ACTION_BACK_EXTRA);
                 mMultipleSelect = extras.getBoolean(MULTIPLE_SELECT_EXTRA);
                 mCaption = extras.getString(CAPTION_EXTRA);
@@ -129,6 +135,8 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
     // region ImageGalleryAdapter.OnImageClickListener Methods
     @Override
     public void onImageClick(int position) {
+        // we call eventbus directly from adapter
+
         /*
         Intent intent = new Intent(ImageGalleryActivity.this, FullScreenImageGalleryActivity.class);
         intent.putStringArrayListExtra(FullScreenImageGalleryActivity.IMAGES, mImages);
@@ -161,14 +169,18 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
             mToolbar.setBackgroundColor(Color.BLACK);
             if (mAdapter != null) {
                 mAdapter.deselectAll();
-                mSelectedPhotos.clear();
+                if (mSelectedPhotos != null)
+                    mSelectedPhotos.clear();
             }
         }
     }
 
     private void numberSelected(ArrayList<ImageModel> imagesModel) {
-        int sizeSelected = mSelectedPhotos.size();
+        int sizeSelected = 0;
         int sizeAdapter = -1;
+
+        if (mSelectedPhotos != null)
+            sizeSelected = mSelectedPhotos.size();
 
         if (mAdapter != null && mAdapter.getItemCount() > 0)
             sizeAdapter = mAdapter.getItemCount();
@@ -188,7 +200,7 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
         bindViews();
         handler = new Handler();
         loaderManager = getSupportLoaderManager();
-        loaderManager.initLoader(1, null, this);
+        loaderManager.initLoader(LOADER_IDENT, null, this);
         textViewNavigation.setText(mBackAction);
         textViewCaption.setText(mCaption);
         textViewNextAction.setText(mNextAction);
@@ -238,7 +250,7 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
     private void selectPreSelected(ArrayList<ImageModel> imagesModel) {
         if (mSelectedPhotos != null && mSelectedPhotos.size() > 0) {
             for (ImageModel model : imagesModel) {
-                if (findById(model.id))
+                if (findById(model.mediaId))
                     model.isSelected = true;
             }
         }
@@ -275,41 +287,68 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
 
     @Subscribe
     public void onEvent(ImageTapEvent event) {
+        onTap(event);
+    }
+
+    private void onTap(ImageTapEvent event) {
         if (mSelectedPhotos == null) {
             mSelectedPhotos = new ArrayList<>();
         }
-        ImageModel model = event.model;
-        if (model.isSelected)
-            mSelectedPhotos.add(String.valueOf(event.model.id));
-        else {
-            int i = 0;
-            boolean toDelete = false;
-            String modelId = String.valueOf(model.id);
-            for (String id : mSelectedPhotos) {
-                if (id.equalsIgnoreCase(modelId)) {
-                    toDelete = true;
-                    break;
+
+        if (!mMultipleSelect) {
+            ImageModel model = event.model;
+            model.isSelected = true;
+            mSelectedPhotos.add(String.valueOf(event.model.mediaId));
+            nextAction();
+        } else {
+
+            ImageModel model = event.model;
+            if (model.isSelected)
+                mSelectedPhotos.add(String.valueOf(event.model.mediaId));
+            else {
+                int i = 0;
+                boolean toDelete = false;
+                String modelId = String.valueOf(model.mediaId);
+                for (String id : mSelectedPhotos) {
+                    if (id.equalsIgnoreCase(modelId)) {
+                        toDelete = true;
+                        break;
+                    }
+                    i++;
                 }
-                i++;
+                if (toDelete == true)
+                    mSelectedPhotos.remove(i);
             }
-            if (toDelete == true)
-                mSelectedPhotos.remove(i);
+            numberSelected(null);
         }
-        numberSelected(null);
     }
 
     private void nextAction() {
-        if(mSelectedPhotos.size() == 0)
-            finish();
+        if(mSelectedPhotos.size() == 0) {
+            if (mAdapter != null)
+                mAdapter.getItems().clear();
+            loaderManager.destroyLoader(LOADER_IDENT);
+            finishWithResult();
+        }
+
         ArrayList<ImageModel> selectedModels = new ArrayList<>(mSelectedPhotos.size());
         ArrayList<ImageModel> models = mAdapter.getItems();
         for (ImageModel imageModel : models) {
             if (imageModel.isSelected)
-                selectedModels.add(imageModel);
+                selectedModels.add(imageModel.clone());
         }
 
+        loaderManager.destroyLoader(LOADER_IDENT);
+        models.clear();
         FinishedSelectionEvent event = new FinishedSelectionEvent(selectedModels);
         EventBus.getDefault().postSticky(event);
+        finishWithResult();
+        //finish();
+    }
+
+    private void finishWithResult() {
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
         finish();
     }
 
@@ -326,8 +365,14 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         final String[] columns = { MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID };
-        final String orderBy = MediaStore.Images.Media._ID;
-        return new CursorLoader(this, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null, orderBy);
+        final String orderBy = MediaStore.Images.Media.DATE_TAKEN + " DESC";
+        final String selection = MediaStore.Images.ImageColumns.BUCKET_ID + "=?";
+        final String[] selectionArgs = new String[] {mGalleryId};
+
+        if (TextUtils.isEmpty(mGalleryId) || mGalleryId.equalsIgnoreCase("0"))
+            return new CursorLoader(this, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null, orderBy);
+        else
+            return new CursorLoader(this, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, selection, selectionArgs, orderBy);
     }
 
     @Override
@@ -373,5 +418,4 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
     public void onLoaderReset(Loader<Cursor> loader) {
 
     }
-
 }

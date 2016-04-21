@@ -13,6 +13,9 @@ import com.etiennelawlor.imagegallery.R;
 import com.etiennelawlor.imagegallery.library.activities.ImageGalleryActivity;
 import com.etiennelawlor.imagegallery.library.activities.PhotoGalleryActivity;
 import com.etiennelawlor.imagegallery.library.enums.PaletteColorType;
+import com.etiennelawlor.imagegallery.library.events.FinishedSelectionEvent;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
@@ -41,7 +44,9 @@ public class MainActivity extends AppCompatActivity {
         selected.add("122");
         selected.add("127");
         selected.add("129");
-        intent.putStringArrayListExtra(PhotoGalleryActivity.IMAGES_SELECTED_EXTRA, selected);
+
+        String galleryId = "12"; // from system content galleries
+        intent.putExtra(PhotoGalleryActivity.ACTION_GALLERY_ID, galleryId);
         intent.putExtra(PhotoGalleryActivity.ACTION_BACK_EXTRA, "Back");
         intent.putExtra(PhotoGalleryActivity.MULTIPLE_SELECT_EXTRA, false);
         intent.putExtra(PhotoGalleryActivity.CAPTION_EXTRA, "Select");
@@ -151,6 +156,11 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
+    }
+
+    @Subscribe(sticky = true)
+    public void onEvent(FinishedSelectionEvent event) {
+
     }
     // endregion
 }

@@ -3,7 +3,6 @@ package com.etiennelawlor.imagegallery.library.activities;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,15 +25,17 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
     public static final String IMAGES = "images";
     public static final String PALETTE = "palette_color_type";
     public static final String ACTION_BACK = "action_back";
+    public static final String ACTION_CAPTION = "action_caption";
+    public static final String ACTION_NEXT = "action_next";
+
 
     // region Member Variables
     private ArrayList<String> mImages;
     private PaletteColorType mPaletteColorType;
-    private String mContactName;
 
     private Toolbar mToolbar;
     private RecyclerView mRecyclerView;
-    private TextView textViewNumbers, textViewNavigation;
+    private TextView textViewNumbers, textViewNavigation, textViewNext, textViewCaption;
     private LinearLayout linearLayoutBack;
     // endregion
 
@@ -46,7 +47,6 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
         setContentView(R.layout.activity_image_gallery);
 
         bindViews();
-
         setSupportActionBar(mToolbar);
 
         Intent intent = getIntent();
@@ -55,8 +55,17 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
             if (extras != null) {
                 mImages = extras.getStringArrayList(IMAGES);
                 mPaletteColorType = (PaletteColorType) extras.get(PALETTE);
-                mContactName = extras.getString(ACTION_BACK);
-                textViewNavigation.setText(mContactName);
+                String backNavigationText = extras.getString(ACTION_BACK);
+                textViewNavigation.setText(backNavigationText);
+                try {
+                    String nextAction = extras.getString(ACTION_NEXT);
+                    textViewNext.setText(nextAction);
+
+                    String caption = extras.getString(ACTION_CAPTION);
+                    textViewCaption.setText(caption);
+                } catch (Exception e) {
+
+                }
             }
         }
 
@@ -90,7 +99,8 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
         if (mPaletteColorType != null) {
             intent.putExtra(FullScreenImageGalleryActivity.PALETTE, mPaletteColorType);
         }
-        intent.putExtra(FullScreenImageGalleryActivity.ACTION_BACK, mContactName);
+        String caption = textViewCaption.getText().toString();
+        intent.putExtra(FullScreenImageGalleryActivity.ACTION_BACK, caption);
         intent.putExtra(FullScreenImageGalleryActivity.FROM_GALLERY, true);
 
         startActivity(intent);
@@ -101,14 +111,15 @@ public class ImageGalleryActivity extends AppCompatActivity implements ImageGall
     private void bindViews() {
         mRecyclerView = (RecyclerView) findViewById(R.id.rv);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        textViewNavigation = (TextView)mToolbar.findViewById(R.id.navigation);
+        textViewNavigation = (TextView)mToolbar.findViewById(R.id.back);
         textViewNumbers = (TextView)mToolbar.findViewById(R.id.numbers);
         textViewNumbers.setVisibility(View.GONE);
-        linearLayoutBack = (LinearLayout)mToolbar.findViewById(R.id.back);
+        textViewNext = (TextView)mToolbar.findViewById(R.id.nextAction);
+        textViewCaption = (TextView)mToolbar.findViewById(R.id.caption);
+        linearLayoutBack = (LinearLayout)mToolbar.findViewById(R.id.backLayout);
         linearLayoutBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //onBackPressed();
                 finish();
             }
         });

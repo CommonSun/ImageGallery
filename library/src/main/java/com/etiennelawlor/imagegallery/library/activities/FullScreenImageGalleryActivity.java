@@ -13,6 +13,9 @@ import android.widget.TextView;
 import com.etiennelawlor.imagegallery.library.R;
 import com.etiennelawlor.imagegallery.library.adapters.FullScreenImageGalleryAdapter;
 import com.etiennelawlor.imagegallery.library.enums.PaletteColorType;
+import com.etiennelawlor.imagegallery.library.events.ImagesRemovedEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +33,7 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
 
     // region Member Variables
     private List<String> mImages;
+    private List<String> mRemovedImages;
     private int mPosition;
     private PaletteColorType mPaletteColorType;
     private String mName;
@@ -101,6 +105,7 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
             }
         }
 
+        mRemovedImages = new ArrayList<>();
         setUpViewPager();
     }
 
@@ -126,8 +131,8 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.vp);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         textViewNumbers = (TextView)mToolbar.findViewById(R.id.numbers);
-        textViewNavigation = (TextView)mToolbar.findViewById(R.id.navigation);
-        linearLayoutBack = (LinearLayout)mToolbar.findViewById(R.id.back);
+        textViewNavigation = (TextView)mToolbar.findViewById(R.id.back);
+        linearLayoutBack = (LinearLayout)mToolbar.findViewById(R.id.backLayout);
         linearLayoutBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,25 +142,24 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
                     finish();
             }
         });
-        textViewRemove = (TextView) findViewById(R.id.remove);
+        textViewRemove = (TextView) findViewById(R.id.caption);
         textViewRemove.setVisibility(View.GONE);
         textViewRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mPosition = getNextPosition(mCurrentposition);
+                mRemovedImages.add(mImages.get(mCurrentposition));
                 mImages.remove(mCurrentposition);
                 setUpViewPager();
+                textViewDone.setVisibility(View.VISIBLE);
             }
         });
 
-        textViewDone = (TextView) findViewById(R.id.done);
+        textViewDone = (TextView) findViewById(R.id.nextAction);
         textViewDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = getIntent();
-                intent.putStringArrayListExtra(FullScreenImageGalleryActivity.IMAGES, (ArrayList) mImages);
-                setResult(RESULT_OK, intent);
-                finish();
+                onDone();
             }
         });
     }
@@ -177,6 +181,8 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
         mViewPager.setCurrentItem(mPosition);
 
         setActionBarTitle(mPosition);
+        if (mImages.size() == 0)
+            onDone();
     }
 
     private void setActionBarTitle(int position) {
@@ -204,5 +210,16 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
         }
         finish();
     }
+
+    private void onDone() {
+        Intent intent = getIntent();
+        intent.putStringArrayListExtra(FullScreenImageGalleryActivity.IMAGES, (ArrayList) mImages);
+        setResult(RESULT_OK, intent);
+
+        if (mRemovedImages != null && mRemovedImages.size() > 0)
+            EventBus.getDefault().postSticky(new ImagesRemovedEvent(mRemovedImages));
+        finish();
+    }
+
     // endregion
 }

@@ -96,11 +96,17 @@ public class PhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         EventBus.getDefault().post(event);
                     }
                 } else {  // single pick -> do some action
+                    /*
                     Log.d("tag", "not multiple picking");
                     if (adapterPos != RecyclerView.NO_POSITION) {
                         if (mOnImageClickListener != null) {
                             mOnImageClickListener.onImageClick(adapterPos);
                         }
+                    }
+                    */
+                    if (item != null) {
+                        ImageTapEvent event = new ImageTapEvent(item);
+                        EventBus.getDefault().post(event);
                     }
                 }
             }
