@@ -1,0 +1,84 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <include layout="@layout/annotation_activity_toolbar"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        >
+    </include>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/selectedImages"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:paddingLeft="2dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:layout_alignParentBottom="true"
+        android:scrollbars="horizontal"
+        tools:listitem="@layout/selected_image_recycle_view_row"
+        android:background="@color/grey_white_1000"/>
+
+    <TextView
+        android:id="@+id/tapImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/selectedImages"
+        android:padding="8dp"
+        android:gravity="center"
+        android:text="Tap photo to add annotation"
+        android:textColor="@color/grey_white_1000"
+        android:background="@color/blue_grey_800"
+        />
+
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px" />
+
+    <FrameLayout
+        android:id="@+id/imageLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:layout_above="@+id/tapImage"
+        android:background="@color/amber_50"
+        >
+        <com.etiennelawlor.imagegallery.library.view.TouchInterceptFrameLayout
+            android:id="@+id/subLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+            <EditText
+                android:id="@+id/annotationText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:gravity="center"
+                android:drawableRight="@drawable/icon_remove"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:lines="1"
+                android:singleLine="true"
+                android:inputType="textCapSentences"
+                android:imeOptions="actionDone"
+                android:textColor="@color/grey_white_1000"
+                android:text="One annotation"
+                android:background="@color/sixty_percent_transparent"/>
+
+        </com.etiennelawlor.imagegallery.library.view.TouchInterceptFrameLayout>
+    </FrameLayout>
+
+
+</RelativeLayout>

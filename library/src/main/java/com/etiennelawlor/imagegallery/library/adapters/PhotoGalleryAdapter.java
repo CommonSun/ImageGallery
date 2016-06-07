@@ -87,6 +87,8 @@ public class PhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             @Override
             public void onClick(View v) {
                 int adapterPos = holder.getAdapterPosition();
+                if (mImagesModelList.size() <= adapterPos)
+                    return;
                 ImageModel item = mImagesModelList.get(adapterPos);
                 if (multiplePicking) {
                     if (item != null) {

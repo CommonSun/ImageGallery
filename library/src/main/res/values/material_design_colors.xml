@@ -2,6 +2,7 @@
 
 <resources>
     <color name="somewhat_transparent">#80fde0dc</color>
+    <color name="sixty_percent_transparent">#99000000</color>
 
     <color name="red_50">#fde0dc</color>
     <color name="red_100">#f9bdbb</color>
@@ -128,7 +129,7 @@
     <color name="teal_200">#80cbc4</color>
     <color name="teal_300">#4db6ac</color>
     <color name="teal_400">#26a69a</color>
-    <color name="teal_500">#9688</color>
+    <color name="teal_500">#009688</color>
     <color name="teal_600">#00897b</color>
     <color name="teal_700">#00796b</color>
     <color name="teal_800">#00695c</color>

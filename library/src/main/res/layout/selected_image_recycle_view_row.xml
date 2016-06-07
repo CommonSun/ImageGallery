@@ -1,0 +1,25 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:padding="4dp"
+    >
+    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/thumbnail"
+        android:layout_height="96dp"
+        android:layout_width="96dp"
+        android:scaleType="fitCenter"
+        android:background="@color/grey_black_1000"
+        android:src="@drawable/icon_plus"
+        />
+    <TextView
+        android:id="@+id/annotationText"
+        android:layout_width="96dp"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:gravity="center"
+        android:textColor="@color/grey_white_1000"
+        android:textSize="6sp"
+        android:text="One annotation"
+        android:background="@color/sixty_percent_transparent"/>
+</FrameLayout>
+

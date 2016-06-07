@@ -25,6 +25,13 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label=""
             android:theme="@style/ImageGalleryTheme" />
+        <activity
+            android:launchMode="singleInstance"
+            android:name="com.etiennelawlor.imagegallery.library.activities.SelectedImagesAnnotationGalleryActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label=""
+            android:theme="@style/ImageGalleryTheme"
+            android:windowSoftInputMode="adjustPan|adjustNothing"/>
 
 
     </application>

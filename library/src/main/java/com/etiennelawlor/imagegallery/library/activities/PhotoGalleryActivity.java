@@ -49,6 +49,7 @@ import java.util.ArrayList;
 
 public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGalleryAdapter.OnImageClickListener,
         LoaderManager.LoaderCallbacks<Cursor>{
+    public static final String TAG = PhotoGalleryActivity.class.getSimpleName();
     private static final int LOADER_IDENT = 132;
     public static final String IMAGES_SELECTED_EXTRA = "images_selected";
     public static final String ACTION_GALLERY_ID = "gallery_id";
@@ -88,7 +89,9 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
                     mGalleryId = extras.getString(ACTION_GALLERY_ID);
                 } catch (Exception e) {}
                 mBackAction = extras.getString(ACTION_BACK_EXTRA);
-                mMultipleSelect = extras.getBoolean(MULTIPLE_SELECT_EXTRA);
+                //mMultipleSelect = extras.getBoolean(MULTIPLE_SELECT_EXTRA);
+                // forcing to always ON
+                mMultipleSelect = true;
                 mCaption = extras.getString(CAPTION_EXTRA);
                 mNextAction = extras.getString(ACTION_NEXT_EXTRA);
                 // for pre-selected images by Media id
@@ -129,7 +132,6 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        //setUpRecyclerView();
     }
 
     // region ImageGalleryAdapter.OnImageClickListener Methods
@@ -282,7 +284,7 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
 
     @Subscribe
     public void onEvent(ImageLongClickEvent event) {
-        multipleSelectChange(null);
+        //multipleSelectChange(null);
     }
 
     @Subscribe
@@ -340,10 +342,17 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
 
         loaderManager.destroyLoader(LOADER_IDENT);
         models.clear();
-        FinishedSelectionEvent event = new FinishedSelectionEvent(selectedModels);
+        FinishedSelectionEvent event = new FinishedSelectionEvent(selectedModels, TAG);
+        event.galleryId = mGalleryId;
         EventBus.getDefault().postSticky(event);
+        // new call for annotating selected images
+        startAnnotatingActivity();
         finishWithResult();
-        //finish();
+    }
+
+    private void startAnnotatingActivity() {
+        Intent intent = new Intent(this, SelectedImagesAnnotationGalleryActivity.class);
+        startActivity(intent);
     }
 
     private void finishWithResult() {
